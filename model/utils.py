@@ -12,3 +12,11 @@ def validate_file(path, k, size, target_perct, model_type):
             return True, models_dict
     else:
         return True, {}
+
+
+def convert_prob(y, prob):
+    p_a = .5
+    p = sum(y) / len(y)
+    prob_1 = (p / p_a) * prob
+    prob_0 = ((1 - p) / p_a) * (1 - prob)
+    return prob_1 / (prob_1 + prob_0)

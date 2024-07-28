@@ -2,6 +2,7 @@ import os
 import pickle
 
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.linear_model import LogisticRegression
 
 def train_random_forest(x, y, n_jobs):
     regr = RandomForestClassifier(n_jobs=n_jobs)
@@ -51,4 +52,15 @@ def train_base_models(path: str, sample_size: int, k: int, n_jobs: int) -> None:
             with open(file, 'wb') as output_model:
                 pickle.dump(regr, output_model)
             del regr
+
+    trials = validate_file(path, 'logbase', sample_size, k)
+    if trials < 10:
+        x, y = read_features(path, sample_size, k)
+        for j in range(trials, 10):
+            file = path + f'/logbase_{sample_size}_{k}_rep{j}.pkl'
+            model = LogisticRegression(random_state=(j+1)*(k+1))
+            model.fit(x, y)
+            with open(file, 'wb') as output_model:
+                pickle.dump(model, output_model)
+            del model
     del trials

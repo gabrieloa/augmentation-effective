@@ -5,7 +5,7 @@ import os
 
 from tqdm import tqdm
 from sklearn.utils import resample
-from scipy.sparse import csr_matrix
+from scipy.sparse import vstack, csr_matrix
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import confusion_matrix, balanced_accuracy_score, roc_auc_score
@@ -33,8 +33,12 @@ def get_features(path: str, k: int, size: int):
 
     train_df = pd.read_csv(path + f'/train_{size}_{k}.csv', delimiter=',')
 
+    with open(path + f'/sparse_{size}_{k}.pkl', 'rb') as input_sparse:
+        x = pickle.load(input_sparse)
+
     with open(path + f'/sparse_test_{size}_{k}.pkl', 'rb') as input_sparse:
         test_matrix = pickle.load(input_sparse)
+    
 
     test_df = pd.read_csv(path + '/test.csv', delimiter=',')
 
@@ -43,7 +47,7 @@ def get_features(path: str, k: int, size: int):
     
     validate_df = pd.read_csv(path + f'/validation_{size}.csv', delimiter=',')
 
-    return y, tokenizer, train_df, test_matrix, test_df.Label, validation_matrix, validate_df.Label
+    return y, tokenizer, train_df, test_matrix, test_df.Label, validation_matrix, validate_df.Label, x
 
 
 def get_features_tabular(path: str, k: int, size: int):
@@ -80,15 +84,13 @@ def generate_new_train(train_df, label_column, label, samples, tokenizer, ind):
                         replace=True,
                         n_samples=samples, 
                         random_state=ind)
-    dataset_upsample = pd.concat([train_df,
-                                  upsample])
-    train_sentence = dataset_upsample['text_process']
-    y = np.asarray(dataset_upsample['Label'].to_list())
+    
+    train_sentence = upsample['text_process']
+    y = np.asarray(upsample['Label'].to_list())
 
-    train_matrix = csr_matrix(
-        tokenizer.texts_to_matrix(train_sentence, 'count'))
+    x = csr_matrix(tokenizer.texts_to_matrix(train_sentence, mode='count'))
 
-    return train_matrix, y
+    return x, y
 
 def generate_new_train_tabular(train_df, label_column, label, samples, ind):
     upsample = resample(train_df[train_df[label_column] == 1-label],
@@ -104,14 +106,15 @@ def generate_new_train_tabular(train_df, label_column, label, samples, ind):
     return train_matrix, y
 
 
-def upsampling(path, k, size, bow, jobs=11, model_type='RandomForest', target_perct=.5):
+def upsampling(path, k, size, bow, jobs=11, model_type='RandomForest'):
     if bow:
-        y, tokenizer, train_df, test, y_test, validation, y_valid = get_features(path, k, size)
+        y, tokenizer, train_df, test, y_test, validation, y_valid, x = get_features(path, k, size)
     else:
         y, train_df, test, y_test, validation, y_valid = get_features_tabular(path, k, size)
 
     shape_y = y.shape[0]
 
+    target_perct = .5
     root_dir = 'Upsampling' if model_type=='RandomForest' else 'Upsampling_logistic'
 
     file_not_exist, models_dict = validate_file(path,
@@ -133,6 +136,8 @@ def upsampling(path, k, size, bow, jobs=11, model_type='RandomForest', target_pe
                                         sample,
                                         tokenizer,
                                         ind)
+                x_up = vstack([x, x_up])
+                y_up = np.concatenate([y, y_up])
             else:
                 x_up, y_up = generate_new_train_tabular(train_df,
                                         'Label',

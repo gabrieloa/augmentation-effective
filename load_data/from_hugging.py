@@ -6,39 +6,10 @@ from sklearn.model_selection import train_test_split
 from .ProcessDf import process_df
 from .GenerateFeatures import generate_features
 
+import logging
 
 def get_polarity(star):
         return 1 if star >= 3 else 0
-
-
-def load_yelp():
-    dataset = load_dataset('yelp_review_full')
-
-    stars = dataset['train']['label'] + dataset['test']['label']
-
-    review = dataset['train']['text'] + dataset['test']['text']
-
-    polarity = [get_polarity(star) for star in stars]
-    
-    return polarity, review
-
-
-def load_amazon():
-    dataset = load_dataset('amazon_reviews_multi')
-
-    stars = dataset['train']['stars']
-
-    review = dataset['train']['review_body']
-    id_language = [language == 'en' for language in
-                   dataset['train']['language']]
-    stars_filtered = [stars[ind] for ind in range(len(id_language)) if
-                        id_language[ind]]
-    review_filtered = [review[ind] for ind in range(len(id_language)) if
-                        id_language[ind]]
-    
-    polarity = [get_polarity(star) for star in stars_filtered]
-    
-    return polarity, review_filtered
 
 
 def load_app_review():
@@ -136,13 +107,24 @@ class DataSetHugginFace():
                 train.to_csv(path + f'/train_{size}_{k}.csv')
                 generate_features(path, train, k, size, test, validation)
         
-        # perct_validation = 1/5
 
-        # df_model, validation = train_test_split(no_test, 
-        #                                    test_size=perct_validation,
-        #                                    random_state=15)
-            
-        # validation.to_csv(path + f'/validation.csv')
-        # df_model.to_csv(path + '/train.csv')
-        # generate_features(path, df_model, 0, 'full', test, validation)
+def generate_full_sample(path):
+    df = pd.read_parquet(path + '/data.parquet')
+    df = process_df(df,
+                    text_column='review', 
+                    label_column='polarity')
+    df = df[df.text_process!='null']
+    df = df[df.text_process.str.strip()!='']
 
+    test = pd.read_csv(path +'/test.csv')
+
+    logging.info(f'Number of samples: {df.shape[0]}')
+    df = df[~df.index.isin(test['Unnamed: 0'])]
+    logging.info(f'Number of samples: {df.shape[0]}')
+    perct_validation = 1/5
+    df_model, validation = train_test_split(df, 
+                                            test_size=perct_validation,
+                                            random_state=15)
+    validation.to_csv(path + f'/validation_full.csv')
+    df_model.to_csv(path + '/train_full_0.csv')
+    generate_features(path, df_model, 0, 'full', test, validation)
