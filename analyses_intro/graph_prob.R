@@ -33,12 +33,20 @@ graphic <- ggplot()+
   labs(x=expression("P(Y=1|x)"), y=expression(paste("P"[a],"(Y=1|x)")))+
   geom_hline(yintercept=0.5, color='black', linetype=2)+
   geom_vline(xintercept=c(0.1, 0.15, 0.2, 0.25), color='black', linetype=2)+
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-        panel.background = element_blank(), axis.line = element_line(colour = "black"))
+  theme(panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(), 
+        axis.line = element_line(colour = "black"),
+        axis.text.x = element_text(size = 18),  # Ajusta o tamanho dos números no eixo x
+        axis.text.y = element_text(size = 18),
+        legend.text = element_text(size=18),
+        legend.title = element_text(size = 21),
+        axis.title.x = element_text(size=21),
+        axis.title.y = element_text(size = 21))
 
+graphic
 
-
-ggsave('/home/Data/augmentation-effective/analises/example_prob.png', 
+ggsave('/home/Data/augmentation-effective/analyses_intro/example_prob.pdf', 
        plot=graphic, 
        width = 12, 
        height = 10, 

@@ -1,15 +1,17 @@
 require(ggplot2)
 
 
-df_final <- read.csv("/home/Data/augmentation-effective/analise_intro/boxplot.csv")
+df_final <- read.csv("/home/Data/augmentation-effective/analyses_intro/boxplot.csv")
 
 graphic <- ggplot(df_final, aes(x=as.factor(target_value), y=value)) + 
   geom_boxplot()+
   facet_grid(~variable)+
   geom_hline(yintercept = 0, color='red', linetype=2)+
-  theme(axis.title = element_text(size = 18), 
-        strip.text.y = element_text(size = 15),
-        strip.text.x = element_text(size = 15),
+  theme(axis.title = element_text(size = 24), 
+        axis.text.x = element_text(size = 18),  # Ajusta o tamanho dos números no eixo x
+        axis.text.y = element_text(size = 18),
+        strip.text.y = element_text(size = 21),
+        strip.text.x = element_text(size = 21),
         panel.grid.major = element_blank(), 
         panel.grid.minor = element_blank(),
         panel.background = element_blank(), 
@@ -18,7 +20,7 @@ graphic <- ggplot(df_final, aes(x=as.factor(target_value), y=value)) +
        y="Percentage Gain in balanced accuracy \n from data augmentation")
 
 
-ggsave('/home/Data/augmentation-effective/analise_intro/intro.png', 
+ggsave('/home/Data/augmentation-effective/analyses_intro/intro.pdf', 
        plot=graphic, 
        width = 12, 
        height = 10, 

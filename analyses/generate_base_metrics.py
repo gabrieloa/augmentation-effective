@@ -5,7 +5,7 @@ from tqdm import tqdm
 from sklearn.metrics import roc_auc_score, balanced_accuracy_score, confusion_matrix
 
 
-for d in ['app_reviews', 'hatespeech', 'sentiment', 'womens']:
+for d in ['app_reviews', 'hatespeech', 'sentiment', 'womens']:  
     for sample in [500, 2000]:
         y_valid = pd.read_csv(f'./experiments/{d}/validation_{sample}.csv')['Label']
         y_test = pd.read_csv(f'./experiments/{d}/test.csv')['Label']

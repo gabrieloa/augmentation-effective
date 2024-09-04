@@ -1,6 +1,6 @@
 require(ggplot2)
 
-df <- read.csv('/home/Data/augmentation-effective/analises/heatmap_ba.csv')
+df <- read.csv('/home/Data/augmentation-effective/analyses/heatmap_ba.csv')
 
 df['mean'] <- round(df['mean'])
 
@@ -17,14 +17,18 @@ graphic <- ggplot(data = df, aes(x=method, y=dataset, fill=mean_p)) +
                        name='Percentage gain \n in balanced \n accuracy')+
   theme(axis.text.x = element_text(angle = 45, hjust=1))+
   facet_grid(forcats::fct_rev(facet_b) ~ factor(facet_a, levels = facet_levels), scales = "free")+
-  theme(axis.title = element_text(size = 12), 
-        strip.text.x = element_text(size = 12),
-        strip.text.y = element_text(size = 12),
-        axis.text = element_text(size = 9))
+  theme(axis.title = element_text(size = 21), 
+        strip.text.x = element_text(size = 15),
+        strip.text.y = element_text(size = 18),
+        axis.text = element_text(size = 15),
+        axis.text.x = element_text(size=15),
+        axis.text.y = element_text(size=15),
+        legend.title = element_text(size=18),
+        legend.text = element_text(size=15))
 graphic
-ggsave('/home/Data/augmentation-effective/analises/heatmap_ba3.png', 
+ggsave('/home/Data/augmentation-effective/analyses/heatmap_ba3.pdf', 
        plot=graphic, 
-       width = 12, 
+       width = 15, 
        height = 10, 
        dpi = 300)
 
