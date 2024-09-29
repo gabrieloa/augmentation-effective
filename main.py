@@ -2,6 +2,7 @@ import os
 import time
 import logging
 import numpy as np
+import argparse
 
 from model.SMOTE import smote_train
 from model.Upsampling import upsampling
@@ -11,20 +12,37 @@ from load_data.load_tabular import *
 
 from datetime import datetime
 
-dataset = {'app': ('./experiments/app_reviews/', load_app_review, None),
-           'hatespeech': ('./experiments/hatespeech/', load_hatespeech, None),
-           'sentiment': ('./experiments/sentiment/', load_sentiment, None),
-           'women': ('./experiments/womens/', load_women, None)}
+parser = argparse.ArgumentParser(description='Run experiments')
+parser.add_argument('--dataset_folder', type=str, required=True, help='Path to folder with raw dataset')
+parser.add_argument('--experiments_folder', type=str, required=True, help='Path to folder where experiments will be saved')
+args = parser.parse_args()
+experiment_folder = args.experiments_folder
+dataset_folder = args.dataset_folder
+
+if not os.path.exists(dataset_folder):
+    raise ValueError('Dataset folder does not exist')
+
+if not os.path.exists(experiment_folder):
+    os.mkdir(experiment_folder)
+
+
+dataset = {'app': (os.path.join(experiment_folder, 'app_reviews'), load_app_review, None),
+           'hatespeech': (os.path.join(experiment_folder, 'hatespeech'), load_hatespeech, None),
+           'sentiment': (os.path.join(experiment_folder, 'sentiment'), load_sentiment, None),
+           'women': (os.path.join(experiment_folder, 'womens'), load_women, None)}
 
 dataset_tabular = {
-                   'default_credit': ('./experiments/default_credit/', load_default_credit),
-                    'diabetes': ('./experiments/diabetes/', load_diabetes),
-                    'marketing': ('./experiments/marketing/', load_marketing),
-                    'churn': ('./experiments/churn/', load_churn)
+                   'default_credit': (os.path.join(experiment_folder, 'default_credit'), load_default_credit),
+                    'diabetes': (os.path.join(experiment_folder, 'diabetes'), load_diabetes),
+                    'marketing': (os.path.join(experiment_folder, 'marketing'), load_marketing),
+                    'churn': (os.path.join(experiment_folder, 'churn'), load_churn)
                    }
 
 now = datetime.now()
-file_name = f'./experiments/logs/experiments_{now.strftime("%d %m %Y %H:%M:%S")}.log'
+if not os.path.exists(f'{experiment_folder}/logs'):
+    os.mkdir(f'{experiment_folder}/logs')
+
+file_name = f'{experiment_folder}/logs/experiments_{now.strftime("%d %m %Y %H:%M:%S")}.log'
 
 if not os.path.exists(file_name):
     os.mknod(file_name)
@@ -45,7 +63,7 @@ for key, value in dataset.items():
     text_path.append(path)
     if not os.path.exists(path):
         os.mkdir(path)
-        stars, review = load_data()
+        stars, review = load_data(data_folder=dataset_folder)
         dataset = DataSetHugginFace()
         dataset.generate_dataframe(stars, review, path, perct)
 
@@ -54,7 +72,7 @@ for key, value in dataset_tabular.items():
     paths.append(path)
     if not os.path.exists(path):
         os.mkdir(path)
-        load_data(path)
+        load_data(path, dataset_folder)
 
 sizes = [500, 2000]
 
@@ -62,7 +80,7 @@ for size in sizes:
     for path in paths:
         times = []
         logging.info(f'Path: {path}')
-        for k in range(50):
+        for k in range(1):
             start_k = time.time()
             logging.info(f'Training baseline size: {size} k:{k}')
             start = time.time()
