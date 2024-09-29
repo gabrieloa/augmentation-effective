@@ -2,16 +2,30 @@ import os
 import time
 import logging
 import numpy as np
+import argparse
 
 from model.Upsampling import upsampling
 from load_data.from_hugging import *
 
 from datetime import datetime
 
-dataset = {'app': ('./experiments/app_reviews/', load_app_review, None)}
+parser = argparse.ArgumentParser(description='Run experiments')
+parser.add_argument('--dataset_folder', type=str, required=True, help='Path to folder with raw dataset')
+parser.add_argument('--experiments_folder', type=str, required=True, help='Path to folder where experiments will be saved')
+args = parser.parse_args()
+experiment_folder = args.experiments_folder
+dataset_folder = args.dataset_folder
+
+dataset = {'app': (f'{experiment_folder}/app_reviews/', load_app_review, None)}
 
 now = datetime.now()
-file_name = f'./experiments/logs/experiments_{now.strftime("%d %m %Y %H:%M:%S")}.log'
+if not os.path.exists(f'{experiment_folder}/logs'):
+    os.mkdir(f'{experiment_folder}/logs')
+
+if not os.path.exists(f'{experiment_folder}/app_reviews/'):
+    os.mkdir(f'{experiment_folder}/app_reviews/')
+    
+file_name = f'{experiment_folder}/logs/experiments_{now.strftime("%d %m %Y %H:%M:%S")}.log'
 
 if not os.path.exists(file_name):
     os.mknod(file_name)
@@ -24,8 +38,8 @@ console_handler = logging.StreamHandler()
 console_handler.setLevel(logging.INFO)
 logging.getLogger().addHandler(console_handler)
 
-paths = ['./experiments/app_reviews/']
-text_path = ['./experiments/app_reviews/']
+paths = [f'{experiment_folder}/app_reviews/']
+text_path = [f'{experiment_folder}/app_reviews/']
 
 sizes = [500]
 
