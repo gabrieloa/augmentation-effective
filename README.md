@@ -212,5 +212,5 @@ To execute the experiment with the full dataset, run the following script:
     Example usage:
 
     ```sh
-    Rscript analyses_full/heatmap_metrics.R
+    Rscript analyses_full/heatmap_ba.R
     ```

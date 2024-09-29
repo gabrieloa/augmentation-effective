@@ -12,7 +12,7 @@ args = parser.parse_args()
 experiment_folder = args.experiments_folder
 
 dir = [d for d in os.listdir(experiment_folder) if d!='logs']
-methods = ['Upsampling', 'SMOTE', 'ADASYN', 'BORDELINE']
+methods = ['Upsampling_logistic', 'SMOTE_logistic', 'ADASYN_logistic', 'BORDELINE_logistic']
 
 def generate_test_df(sample, metric='auc'):
     results = []
