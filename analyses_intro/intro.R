@@ -1,7 +1,7 @@
 require(ggplot2)
 
 
-df_final <- read.csv("/home/Data/augmentation-effective/analyses_intro/boxplot.csv")
+df_final <- read.csv("analyses_intro/boxplot.csv")
 
 graphic <- ggplot(df_final, aes(x=as.factor(target_value), y=value)) + 
   geom_boxplot()+
@@ -20,7 +20,7 @@ graphic <- ggplot(df_final, aes(x=as.factor(target_value), y=value)) +
        y="Percentage Gain in balanced accuracy \n from data augmentation")
 
 
-ggsave('/home/Data/augmentation-effective/analyses_intro/intro.pdf', 
+ggsave('analyses_intro/intro.pdf', 
        plot=graphic, 
        width = 12, 
        height = 10, 

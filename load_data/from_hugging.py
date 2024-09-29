@@ -1,4 +1,5 @@
 import pandas as pd
+import os
 
 from datasets import load_dataset
 from sklearn.model_selection import train_test_split
@@ -12,7 +13,7 @@ def get_polarity(star):
         return 1 if star >= 3 else 0
 
 
-def load_app_review():
+def load_app_review(data_folder):
     dataset = load_dataset('app_reviews')
 
     stars = dataset['train']['star']
@@ -24,7 +25,7 @@ def load_app_review():
     return polarity, review
 
 
-def load_hatespeech():
+def load_hatespeech(data_folder):
     dataset = load_dataset('hate_speech_offensive')
 
     label = dataset['train']['class']
@@ -38,7 +39,7 @@ def load_hatespeech():
     return label, tweet
 
 
-def load_sentiment():
+def load_sentiment(data_folder):
     dataset = load_dataset('tweet_eval', 'sentiment')
     label = dataset['train']['label']
     tweet = dataset['train']['text']
@@ -50,8 +51,10 @@ def load_sentiment():
 
     return label, tweet
 
-def load_women():
-    dataset = pd.read_csv('Womens Clothing E-Commerce Reviews.csv')
+def load_women(data_folder):
+    if not os.path.exists(data_folder + '/Womens Clothing E-Commerce Reviews.csv'):
+        raise FileNotFoundError('File Womens Clothing E-Commerce Reviews.csv not found')
+    dataset = pd.read_csv(data_folder + '/Womens Clothing E-Commerce Reviews.csv')
     label = dataset['Recommended IND']
     text = dataset['Review Text']
     return label, text

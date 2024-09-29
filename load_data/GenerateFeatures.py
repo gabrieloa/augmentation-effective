@@ -28,6 +28,6 @@ def generate_features(path, train, k, sample_size, test, validation):
         pickle.dump(obj=csr_matrix(tokenizer.texts_to_matrix(test['text_process'], 'count')), 
                     file=handle)
 
-    with open(path + f'sparse_validation_{sample_size}_{k}.pkl', 'wb') as handle:
+    with open(path + f'/sparse_validation_{sample_size}_{k}.pkl', 'wb') as handle:
         pickle.dump(obj=csr_matrix(tokenizer.texts_to_matrix(validation['text_process'], 'count')), 
                     file=handle)

@@ -100,17 +100,13 @@ def smote_train(path, k, size, method, bow=False, jobs=11, model_type='RandomFor
 
             unique_prob = np.unique(np.round(np.concatenate((pred_valid, pred_test, np.array([.5]))), 3))
 
-            print(pred_valid)
             unique_prob = np.sort(unique_prob)
 
             for thr in unique_prob:
                 ba = balanced_accuracy_score(y_valid, pred_valid > thr)
-                print("Threshold: ", thr, "BA: ", ba)
-                print(confusion_matrix(y_valid, pred_valid > thr))
                 if ba > best_ba:
                     best_ba = ba
                     best_thr = thr
-                    print(f"Best thr: {best_thr} BA: {best_ba}")
                 matrix[thr] = confusion_matrix(y_test, pred_test > thr)
 
             pred_test = convert_prob(y_test, pred_test)

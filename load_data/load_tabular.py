@@ -1,6 +1,7 @@
 import pickle
 import pandas as pd
 import logging
+import os
 
 from scipy.sparse import csr_matrix
 from sklearn.model_selection import train_test_split
@@ -48,14 +49,16 @@ def generate_data_tabular(path, df):
                     pickle.dump(obj=y, file=handle)
 
 
-def load_default_credit(path):
-    df = pd.read_csv('default_credit_dataset/UCI_Credit_Card.csv')
+def load_default_credit(path, dataset_folder):
+    if not os.path.exists(f'{dataset_folder}/UCI_Credit_Card.csv'):
+         raise FileNotFoundError('File UCI_Credit_Card.csv not found')
+    df = pd.read_csv(f'{dataset_folder}/UCI_Credit_Card.csv')
     df.drop(columns=['ID'], inplace=True)
     df.rename(columns={'default.payment.next.month': 'Label'}, inplace=True)
     df = pd.get_dummies(df, columns=['EDUCATION', 'MARRIAGE'],drop_first=True )
     generate_data_tabular(path, df)
 
-def load_diabetes(path):
+def load_diabetes(path, dataset_folder):
     # fetch dataset     
     cdc_diabetes_health_indicators = fetch_ucirepo(id=891) 
     
@@ -67,17 +70,21 @@ def load_diabetes(path):
 
     generate_data_tabular(path, df)
 
-def load_marketing(path):
+def load_marketing(path, dataset_folder):
     # fetch dataset 
-    df = pd.read_csv('digital_marketing_campaign_dataset.csv') 
+    if not os.path.exists(f'{dataset_folder}/digital_marketing_campaign_dataset.csv'):
+        raise FileNotFoundError('File digital_marketing_campaign_dataset.csv not found')
+    df = pd.read_csv(f'{dataset_folder}/digital_marketing_campaign_dataset.csv')
     df.drop(columns=['CustomerID'])
     df = pd.get_dummies(df, columns=['Gender', 'CampaignChannel', 'CampaignType', 'AdvertisingPlatform', 'AdvertisingTool'], drop_first=True)
     df.rename(columns={'Conversion': 'Label'}, inplace=True)
     df['Label'] = 1-df['Label']
     generate_data_tabular(path, df)
 
-def load_churn(path):
-    df = pd.read_csv('Churn_Modelling.csv')
+def load_churn(path, dataset_folder):
+    if not os.path.exists(f'{dataset_folder}/customer_churn_dataset-training-master.csv'):
+        raise FileNotFoundError('File customer_churn_dataset-training-master not found')
+    df = pd.read_csv(f'{dataset_folder}/customer_churn_dataset-training-master.csv')
     df.drop(columns=['RowNumber', 'CustomerId', 'Surname'], inplace=True)
     df = pd.get_dummies(df, columns=['Geography', 'Gender'], drop_first=True)
     df.rename(columns={'Exited': 'Label'}, inplace=True)
@@ -104,23 +111,27 @@ def break_full_df(df, path):
     with open(path + '/y_full_0.pkl', 'wb') as handle:
         pickle.dump(obj=1-df_model.Label, file=handle)
 
-def full_churn(path):
-    df = pd.read_csv('Churn_Modelling.csv')
+def full_churn(path, dataset_folder):
+    if not os.path.exists(f'{dataset_folder}/customer_churn_dataset-training-master.csv'):
+        raise FileNotFoundError('File customer_churn_dataset-training-master.csv not found')
+    df = pd.read_csv(f'{dataset_folder}/customer_churn_dataset-training-master.csv')
     df.drop(columns=['RowNumber', 'CustomerId', 'Surname'], inplace=True)
     df = pd.get_dummies(df, columns=['Geography', 'Gender'], drop_first=True)
     df.rename(columns={'Exited': 'Label'}, inplace=True)
     break_full_df(df, path)
 
 
-def full_default_credit(path):
-    df = pd.read_csv('default_credit_dataset/UCI_Credit_Card.csv')
+def full_default_credit(path, dataset_folder):
+    if not os.path.exists(f'{dataset_folder}/UCI_Credit_Card.csv'):
+         raise FileNotFoundError('File UCI_Credit_Card.csv not found')
+    df = pd.read_csv(f'{dataset_folder}/UCI_Credit_Card.csv')
     df.drop(columns=['ID'], inplace=True)
     df.rename(columns={'default.payment.next.month': 'Label'}, inplace=True)
     df = pd.get_dummies(df, columns=['EDUCATION', 'MARRIAGE'],drop_first=True )
     break_full_df(df, path)
 
 
-def full_diabetes(path):
+def full_diabetes(path, dataset_folder):
     # fetch dataset 
     cdc_diabetes_health_indicators = fetch_ucirepo(id=891) 
     
@@ -134,9 +145,11 @@ def full_diabetes(path):
     df = df[~df.index.isin(test['Unnamed: 0'])]
     break_full_df(df, path)
 
-def full_marketing(path):
+def full_marketing(path, dataset_folder):
     # fetch dataset 
-    df = pd.read_csv('digital_marketing_campaign_dataset.csv') 
+    if not os.path.exists(f'{dataset_folder}/digital_marketing_campaign_dataset.csv'):
+        raise FileNotFoundError('File digital_marketing_campaign_dataset.csv not found')
+    df = pd.read_csv(f'{dataset_folder}/digital_marketing_campaign_dataset.csv')
     df.drop(columns=['CustomerID'])
     df = pd.get_dummies(df, columns=['Gender', 'CampaignChannel', 'CampaignType', 'AdvertisingPlatform', 'AdvertisingTool'], drop_first=True)
     df.rename(columns={'Conversion': 'Label'}, inplace=True)
