@@ -1,6 +1,6 @@
 require(ggplot2)
 
-df <- read.csv('/home/Data/augmentation-effective/analyses/heatmap_sen.csv')
+df <- read.csv('analyses/heatmap_sen.csv')
 
 df['mean'] <- round(df['mean'])
 
@@ -30,7 +30,7 @@ graphic <- ggplot(data = df, aes(x=method, y=dataset, fill=mean_p)) +
         legend.title = element_text(size=18),
         legend.text = element_text(size=15))
 graphic
-ggsave('/home/Data/augmentation-effective/analyses/sensitivity.pdf', 
+ggsave('analyses/sensitivity.png', 
        plot=graphic, 
        width = 12, 
        height = 10, 

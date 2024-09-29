@@ -1,6 +1,12 @@
 import os
 import pickle
 import pandas as pd
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--experiments_folder', type=str, required=True, help='Path to folder where experiments will be saved')
+args = parser.parse_args()
+experiment_folder = args.experiments_folder
 
 def get_roc_curves(data):
     df_list = []
@@ -21,27 +27,26 @@ def get_roc_curves(data):
 METHODS = ['Upsampling', 'SMOTE', 'BORDELINE', 'ADASYN']
 
 def main():
-    dir = os.listdir('./experiments')
+    dir = os.listdir(experiment_folder)
     dir = [d for d in dir if d != 'logs']
     for d in dir:
-        if not os.path.exists(f'./experiments/{d}/analysis'):
-            os.mkdir(f'./experiments/{d}/analysis')
+        if not os.path.exists(f'{experiment_folder}/{d}/analysis'):
+            os.mkdir(f'{experiment_folder}/{d}/analysis')
         for sample in [500, 2000]:
             for method in METHODS:
-                print(f'Executando {d} {sample} {method}')
-                file_save = f'./experiments/{d}/analysis/roc_curve_{method}_{sample}.csv'
+                file_save = f'{experiment_folder}/{d}/analysis/roc_curve_{method}_{sample}.csv'
                 if os.path.exists(file_save):
                     continue
                 else:
-                    with open(f'./experiments/{d}/{method}/target_0.5_{sample}_0.pkl', 'rb') as file:
+                    with open(f'{experiment_folder}/{d}/{method}/target_0.5_{sample}_0.pkl', 'rb') as file:
                         data = pickle.load(file)
                     df_tmp = get_roc_curves(data)
-                    with open(f'./experiments/{d}/{method}/target_0.5_{sample}_1.pkl', 'rb') as file:
+                    with open(f'{experiment_folder}/{d}/{method}/target_0.5_{sample}_1.pkl', 'rb') as file:
                         data = pickle.load(file)
                     df_tmp2 = get_roc_curves(data)
                     df_tmp = df_tmp.merge(df_tmp2, on='FPR', how='outer', suffixes=('_0', '_1')).sort_values('FPR')
                     for k in range(2, 50):
-                        with open(f'./experiments/{d}/{method}/target_0.5_{sample}_{k}.pkl', 'rb') as file:
+                        with open(f'{experiment_folder}/{d}/{method}/target_0.5_{sample}_{k}.pkl', 'rb') as file:
                             data = pickle.load(file)
                         df = get_roc_curves(data)
                         df_tmp = df_tmp.merge(df, on='FPR', how='outer', suffixes=('', f'_{k}')).sort_values('FPR')
@@ -52,19 +57,19 @@ def main():
                     df_tmp = df_tmp.interpolate(method='linear', axis=0)
                     df_tmp.to_csv(file_save)
             
-            file_save = f'./experiments/{d}/analysis/roc_curve_base_{sample}.csv'
+            file_save = f'{experiment_folder}/{d}/analysis/roc_curve_base_{sample}.csv'
             if os.path.exists(file_save):
                     continue
             else:
-                with open(f'./experiments/{d}/metrics_base_{sample}_0.pkl', 'rb') as file:
+                with open(f'{experiment_folder}/{d}/metrics_base_{sample}_0.pkl', 'rb') as file:
                         data = pickle.load(file)
                 df_tmp = get_roc_curves(data)
-                with open(f'./experiments/{d}/metrics_base_{sample}_1.pkl', 'rb') as file:
+                with open(f'{experiment_folder}/{d}/metrics_base_{sample}_1.pkl', 'rb') as file:
                         data = pickle.load(file)
                 df_tmp2 = get_roc_curves(data)
                 df_tmp = df_tmp.merge(df_tmp2, on='FPR', how='outer', suffixes=('_0', '_1')).sort_values('FPR')
                 for k in range(2, 50):
-                    with open(f'./experiments/{d}/metrics_base_{sample}_{k}.pkl', 'rb') as file:
+                    with open(f'{experiment_folder}/{d}/metrics_base_{sample}_{k}.pkl', 'rb') as file:
                         data = pickle.load(file)
                     df = get_roc_curves(data)
                     df_tmp = df_tmp.merge(df, on='FPR', how='outer', suffixes=('', f'_{k}')).sort_values('FPR')

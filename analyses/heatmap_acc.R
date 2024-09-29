@@ -1,6 +1,6 @@
 require(ggplot2)
 
-df <- read.csv('/home/Data/augmentation-effective/analyses/heatmap_acc.csv')
+df <- read.csv('analyses/heatmap_acc.csv')
 
 df['mean'] <- round(df['mean'])
 
@@ -29,7 +29,7 @@ graphic <- ggplot(data = df, aes(x=method, y=dataset, fill=mean_p)) +
         legend.text = element_text(size=15))
 graphic
 
-ggsave('/home/Data/augmentation-effective/analyses/accuracy.pdf', 
+ggsave('analyses/accuracy.pdf', 
        plot=graphic, 
        width = 15, 
        height = 10, 
