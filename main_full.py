@@ -2,6 +2,7 @@ import os
 import time
 import logging
 import numpy as np
+import argparse
 
 from model.SMOTE import smote_train
 from model.Upsampling_full import upsampling
@@ -11,21 +12,36 @@ from load_data.load_tabular import full_default_credit, full_diabetes, full_mark
 
 from datetime import datetime
 
-dataset = {'app': './experiments/app_reviews/',
-           'hatespeech': './experiments/hatespeech/',
-           'sentiment': './experiments/sentiment/',
-           'women': './experiments/womens/'}
+
+parser = argparse.ArgumentParser(description='Run experiments')
+parser.add_argument('--dataset_folder', type=str, required=True, help='Path to folder with raw dataset')
+parser.add_argument('--experiments_folder', type=str, required=True, help='Path to folder where experiments will be saved')
+args = parser.parse_args()
+experiment_folder = args.experiments_folder
+dataset_folder = args.dataset_folder
+
+if not os.path.exists(dataset_folder):
+    raise ValueError('Dataset folder does not exist')
+
+if not os.path.exists(experiment_folder):
+    os.mkdir(experiment_folder)
+
+
+dataset = {'app': f'{experiment_folder}/app_reviews/',
+           'hatespeech': f'{experiment_folder}/hatespeech/',
+           'sentiment': f'{experiment_folder}/sentiment/',
+           'women': f'{experiment_folder}/womens/'}
 
 dataset_tabular = {
-                    'diabetes': ('./experiments/diabetes/'),
-                   'default_credit': ('./experiments/default_credit/'),
-                    'marketing': ('./experiments/marketing/'),
-                    'churn': ('./experiments/churn/')
+                    'diabetes': (f'{experiment_folder}/diabetes/'),
+                   'default_credit': (f'{experiment_folder}/default_credit/'),
+                    'marketing': (f'{experiment_folder}/marketing/'),
+                    'churn': (f'{experiment_folder}/churn/')
                    }
 
 
 now = datetime.now()
-file_name = f'./experiments/logs/experiments_{now.strftime("%d %m %Y %H:%M:%S")}.log'
+file_name = f'{experiment_folder}/logs/experiments_{now.strftime("%d %m %Y %H:%M:%S")}.log'
 
 if not os.path.exists(file_name):
     os.mknod(file_name)
@@ -49,13 +65,13 @@ for key, value in dataset_tabular.items():
     paths.append(path)
     logging.info(f'Generating full sample for {key}')
     if key == 'default_credit':
-        full_default_credit(path)
+        full_default_credit(path, dataset_folder)
     elif key=='diabetes':
-        full_diabetes(path)
+        full_diabetes(path, dataset_folder)
     elif key=='marketing':
-        full_marketing(path)
+        full_marketing(path, dataset_folder)
     else:
-        full_churn(path)
+        full_churn(path, dataset_folder)
 
 for path in paths:
     times = []
